@@ -3,7 +3,8 @@
 Tool aiming to automatically detect OOP principle violations in Python code. Currently only Single Responsbility and Liskov Substitution principle checkers are implemented.
 
 ## Usage
-* Make sure `.pylintrc` is added to `PYTHONPATH`. This file contains the whole Pylint configuration. The default configuration disables all Pylint checkers except for custom SRP and LSP checkers. Also `max-ccm` option is related to SRP checker and could be changed if neccessary.
+* Make sure `OOP_Violations_Checker` directory is added to `PYTHONPATH`. 
+* Add `.pylintrc` to the root directory of the project you want to analyze. This file contains the whole Pylint configuration. The default configuration disables all Pylint checkers except for custom SRP and LSP checkers. Also `max-ccm` option is related to SRP checker and could be changed if neccessary.
 * Run `pylint <directory>` with the name of the directory you want to analyze or `pylint <modules>` providing file names if you want to analyze only certain files.
 * It's also possible to configure Pylint to run in your IDE, check Pylint documentation for more info.
 
