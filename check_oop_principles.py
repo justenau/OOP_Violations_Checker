@@ -120,9 +120,9 @@ class LSPChecker(BaseChecker):
                     return True
         return False
 
-    def _get_overriden_function(self,cls,function):
+    def _get_overriden_function(self, cls, function):
         for base in cls.bases:
-            base_cls = self.classes.get(base.name, None)
+            base_cls = self.classes.get(base.name, None) if hasattr(base, 'name') else None
             if not base_cls:
                 return None
             for base_function in [f for f in base_cls.get_children() if f.is_function]:
