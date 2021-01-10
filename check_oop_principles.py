@@ -103,12 +103,21 @@ class LSPChecker(BaseChecker):
                 continue
             for function in [f for f in cls.get_children() if f.is_function and self._is_not_implemented(f)]:
                 if self._get_overriden_function(cls, function):
-                    self.add_message('not-lsp-compliant',node=cls)
+                    self.add_message('not-lsp-compliant', node=function)
 
-    def _is_not_implemented(self, function):
-        for expr in function.body:
-            if type(expr) is Raise and expr.raises_not_implemented() or type(expr) is Pass:
-                return True
+
+    def _is_not_implemented(self, expr):
+        expr_type = type(expr)
+        if expr_type is Raise and expr.raises_not_implemented() or expr_type is Pass:
+            return True
+        if hasattr(expr, 'body'):
+            for exp in expr.body:
+                if self._is_not_implemented(exp):
+                    return True
+        if hasattr(expr, 'orelse'):
+            for exp in expr.orelse:
+                if self._is_not_implemented(exp):
+                    return True
         return False
 
     def _get_overriden_function(self,cls,function):
