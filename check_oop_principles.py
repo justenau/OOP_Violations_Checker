@@ -1,7 +1,7 @@
 import astroid
 import os
 import subprocess
-from astroid.nodes import Raise, Pass
+from astroid.nodes import Raise, Pass, Module
 from pylint.checkers import BaseChecker
 from pylint.interfaces import IAstroidChecker
 from pylint.extensions.mccabe import PathGraphingAstVisitor
@@ -57,7 +57,7 @@ class SRPChecker(BaseChecker):
         for graph in visitor.graphs.values():
             complexity = graph.complexity()
             node = graph.root
-            if self.config.max_ccm and complexity <= self.config.max_ccm:
+            if self.config.max_ccm and complexity <= self.config.max_ccm or type(node.parent) is Module:
                 continue
             self.add_message(
                 "CCM-too-high", node=node, args=complexity
