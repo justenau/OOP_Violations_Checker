@@ -35,7 +35,10 @@ load-plugins=check_oop_principles
 
 # According to 'A Code Complexity Model of OOP' values 1-10 means it's 'Simple and easy to
 # understand, no much risk
-max-ccm=10
+#srp-max-ccm=10
+
+#srp-max-public-methods=20
+#srp-max-attributes=7
 
 # Pickle collected data for later comparisons.
 persistent=yes

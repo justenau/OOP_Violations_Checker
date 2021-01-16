@@ -10,6 +10,8 @@ class Store:
         self.manager = None
         self.products = []
         self.cash_total = 0
+        self.logo_url = 'https://dummy.image.url'
+        self.description = ''
 
     def add_product(self, name, cost, qty=1):
         product = Product(name,cost,qty)
@@ -44,11 +46,15 @@ class Product:
         self.cost = cost
         self.quantity = quantity
 
-    def calculate_cost(self, qty):
-        return qty * self.cost if self.is_in_stock(qty) else 0
+    def calculate_cost(self, qty, discount=0):
+        cost = qty * self.cost if self.is_in_stock(qty) else 0
+        return self._apply_discount(cost, discount) if discount else cost
 
     def is_in_stock(self, qty):
         return qty >= self.quantity
+
+    def _apply_discount(self, cost, discount):
+        return cost * (1 - discount / 100)
 
 
 class Worker:

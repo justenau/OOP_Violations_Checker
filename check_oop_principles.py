@@ -13,25 +13,49 @@ class SRPChecker(BaseChecker):
     priority = -1
     msgs = {
         'R0001': (
-            'Class is not compliant with Single Responsibility Principle. Cohesion among methods in class is low.',
-            'COM-too-low',
+            'Class is potentially violating Single Responsibility Principle. Cohesion among methods in class is low.',
+            'srp-COM-too-low',
             'Cohesion among methods in class is low.'
         ),
         'R0002': (
-            'Class is not compliant with Single Responsibility Principle. CCM value (%d) is too high.',
-            'CCM-too-high',
+            'Class method is potentially violating Single Responsibility Principle. CCM value (%d) is too high.',
+            'srp-CCM-too-high',
             'Cyclomatic Complexity in method is too high.'
+        ),
+        'R0003': (
+            'Class is potentially violating Single Responsibility Principle. It has too many (%d) public methods.',
+            'srp-too-many-public-methods',
+            'There are too many public methods.'
+        ),
+        'R0004': (
+            'Class is potentially violating Single Responsibility Principle. It has too many (%d) attributes.',
+            'srp-too-many-attributes',
+            'There are too many class atributes.'
         ),
     }
 
     options = (
         (
-            'max-ccm',
+            'srp-max-ccm',
             {
                 'default': 10, 'type': 'int',
                 'help': 'Set maximum allowed Cyclomatic Complexity value',
+            },
+        ),
+        (
+            'srp-max-public-methods',
+            {
+                'default': 20, 'type': 'int',
+                'help': 'Set maximum amount of public methods per class',
             }
         ),
+        (
+            'srp-max-attributes',
+            {
+                'default': 15, 'type': 'int',
+                'help': 'Set maximum amount of attributes per class',
+            }
+        )
     )
 
     def __init__(self, linter=None):
@@ -57,19 +81,37 @@ class SRPChecker(BaseChecker):
         for graph in visitor.graphs.values():
             complexity = graph.complexity()
             node = graph.root
-            if self.config.max_ccm and complexity <= self.config.max_ccm or type(node.parent) is Module:
+            if self.config.srp_max_ccm and complexity <= self.config.srp_max_ccm or type(node.parent) is Module:
                 continue
             self.add_message(
-                "CCM-too-high", node=node, args=complexity
+                'srp-CCM-too-high', node=node, args=complexity
             )
 
     def visit_classdef(self, node):
+        if len(node.instance_attrs) > self.config.srp_max_attributes:
+            self.add_message(
+                'srp-too-many-attributes',
+                node=node,
+                args=len(node.instance_attrs),
+            )
+
         if node.name not in self.LCOM_values:
             return
 
         if self.LCOM_values[node.name] > 1:
             self.add_message(
-                'COM-too-low', node=node,
+                'srp-COM-too-low', node=node,
+            )
+
+    def leave_classdef(self, node):
+        my_methods = sum(
+            1 for method in node.mymethods() if not method.name.startswith("_")
+        )
+        if my_methods > self.config.srp_max_public_methods:
+            self.add_message(
+                'srp-too-many-public-methods',
+                node=node,
+                args=my_methods,
             )
 
 
@@ -80,10 +122,10 @@ class LSPChecker(BaseChecker):
     name = 'lsp-compliance'
     priority = -1
     msgs = {
-        'R0003': (
-            'Class is not compliant with Liskov Substitution principle.',
+        'R0005': (
+            'Class is potentially violating Liskov Substitution principle.',
             'not-lsp-compliant',
-            'Derived dlass method(s) degenerate base class methods.'
+            'Derived class method(s) degenerate base class methods.'
         )
     }
 
