@@ -168,7 +168,7 @@ class LSPChecker(BaseChecker):
             if not base_cls:
                 return None
             for base_function in [f for f in base_cls.get_children() if f.is_function]:
-                if base_function.name == function.name:
+                if base_function.name == function.name and not self._is_not_implemented(base_function):
                     return base_function
             func_overriden_from_root = self._get_overriden_function(base_cls, function)
             if func_overriden_from_root and not self._is_not_implemented(func_overriden_from_root):
