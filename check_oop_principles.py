@@ -6,6 +6,7 @@ from pylint.checkers import BaseChecker
 from pylint.interfaces import IAstroidChecker
 from pylint.extensions.mccabe import PathGraphingAstVisitor
 
+
 class SRPChecker(BaseChecker):
     __implements__ = IAstroidChecker
 
@@ -73,7 +74,6 @@ class SRPChecker(BaseChecker):
                 result = line.split('.')[-1].split('|')
                 self.LCOM_values[result[0].strip()] = int(result[1].strip())
 
-
     def _ccm_checker_visit_module(self, node):
         visitor = PathGraphingAstVisitor()
         for child in node.body:
@@ -117,7 +117,6 @@ class SRPChecker(BaseChecker):
 
 class LSPChecker(BaseChecker):
     __implements__ = IAstroidChecker
-    node = None
 
     name = 'lsp-compliance'
     priority = -1
@@ -147,7 +146,6 @@ class LSPChecker(BaseChecker):
                 if self._get_overriden_function(cls, function):
                     self.add_message('not-lsp-compliant', node=function)
 
-
     def _is_not_implemented(self, expr):
         expr_type = type(expr)
         if expr_type is Raise and expr.raises_not_implemented() or expr_type is Pass:
@@ -175,6 +173,87 @@ class LSPChecker(BaseChecker):
                 return func_overriden_from_root
         return None
 
+
+class ISPChecker(BaseChecker):
+    __implements__ = IAstroidChecker
+
+    name = 'isp-compliance'
+    priority = -1
+    msgs = {
+        'R0006': (
+            'Interface is potentially violating Interface Segregation Principle. '
+            'Interface "%s" is not fully implemented by client class "%s".',
+            'not-isp-compliant',
+            'Interface method is not used by client class.'
+        )
+    }
+
+    def __init__(self, linter=None):
+        super(ISPChecker, self).__init__(linter)
+        self.classes = dict()
+        self.interfaces = dict()
+
+    def visit_classdef(self, node):
+        self.classes[node.name] = node
+        if self._is_interface(node):
+            self.interfaces[node.name] = node
+
+    def _is_interface(self, node):
+        functions = [f for f in node.get_children() if f.is_function]
+        for function in functions:
+            expression = function.body[0] if function.body else None
+            if expression is None:
+                continue
+            if not self._is_not_implemented(function, expression):
+                return False
+        return len(functions) > 0
+
+    def _is_not_implemented(self, function, expression):
+        expression_type = type(expression)
+        return (self._is_abstract_function(function)
+                or expression_type is Raise and expression.raises_not_implemented()
+                or expression_type is Pass
+                or expression_type is astroid.Return
+                and (expression.value is None or hasattr(expression.value, 'value') and expression.value.value is None))
+
+    @staticmethod
+    def _is_abstract_function(function):
+        if function.decorators:
+            for decorator_node in function.decorators.nodes:
+                if (hasattr(decorator_node, 'expr') and decorator_node.expr.parent.attrname == 'abstractmethod'
+                        or hasattr(decorator_node, 'name') and decorator_node.name == 'abstractmethod'):
+                    return True
+        return False
+
+    def close(self):
+        self._check_isp_compliance()
+
+    def _check_isp_compliance(self):
+        for name, cls in self.classes.items():
+            for base_cls in cls.bases:
+                if (hasattr(base_cls, 'name') and base_cls.name in self.interfaces
+                        and not self._is_fully_implemented(cls, self.interfaces[base_cls.name])):
+                    self.add_message(
+                        'not-isp-compliant',
+                        node=self.interfaces[base_cls.name],
+                        args=(base_cls.name, cls.name)
+                    )
+
+    def _is_fully_implemented(self, cls, interface):
+        interface_functions = [f for f in interface.get_children() if f.is_function]
+        cls_functions = [f for f in cls.get_children() if f.is_function]
+        for func in interface_functions:
+            match = next((f for f in cls_functions if f.name == func.name), None)
+            if not match:
+                return False
+
+            expression = match.body[0]
+            if self._is_not_implemented(match, expression):
+                return False
+        return True
+
+
 def register(linter):
     linter.register_checker(SRPChecker(linter))
     linter.register_checker(LSPChecker(linter))
+    linter.register_checker(ISPChecker(linter))
