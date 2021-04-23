@@ -307,7 +307,7 @@ class DIPChecker(BaseChecker):
         if expression is None:
             return False
         try:
-            return expression.value.func.expr.func.name == 'super'
+            return len(function.body) == 1 and expression.value.func.expr.func.name == 'super'
         except AttributeError:
             return False
 
