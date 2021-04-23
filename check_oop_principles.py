@@ -7,7 +7,7 @@ from pylint.interfaces import IAstroidChecker
 from pylint.extensions.mccabe import PathGraphingAstVisitor
 
 
-def _is_abstract_function(function):
+def is_abstract_function(function):
     if function.decorators:
         for decorator_node in function.decorators.nodes:
             if (hasattr(decorator_node, 'expr') and decorator_node.expr.parent.attrname == 'abstractmethod'
@@ -18,7 +18,7 @@ def _is_abstract_function(function):
 
 def is_not_implemented(function, expression):
     expression_type = type(expression)
-    return (_is_abstract_function(function)
+    return (is_abstract_function(function)
             or expression_type is Raise and expression.raises_not_implemented()
             or expression_type is Pass
             or expression_type is astroid.Return
