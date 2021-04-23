@@ -73,7 +73,7 @@ disable=all
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
-enable=srp-compliance, lsp-compliance, isp-compliance
+enable=srp-compliance, lsp-compliance, isp-compliance, dip-compliance
 
 
 [REPORTS]
