@@ -143,7 +143,8 @@ class LSPChecker(BaseChecker):
     priority = -1
     msgs = {
         'R0005': (
-            'Class is potentially violating Liskov Substitution principle.',
+            'Class is potentially violating Liskov Substitution principle. Derived class method(s) degenerate base '
+            'class methods.',
             'not-lsp-compliant',
             'Derived class method(s) degenerate base class methods.'
         )
@@ -266,7 +267,7 @@ class DIPChecker(BaseChecker):
     msgs = {
         'R0007': (
             'Class is potentially violating Dependency Inversion Principle. '
-            'Already implemented base class method is overridden.',
+            'Class "%s" overrides already implemented base class method "%s".',
             'not-dip-compliant',
             'Implemented base class method is overridden.'
         )
@@ -288,7 +289,7 @@ class DIPChecker(BaseChecker):
                 continue
             for function in [f for f in cls.get_children() if f.is_function]:
                 if self._overrides_implemented_function(cls.bases, function):
-                    self.add_message('not-dip-compliant', node=function)
+                    self.add_message('not-dip-compliant', node=function, args=(cls.name, function.name))
 
     def _overrides_implemented_function(self, bases, function):
         for base in bases:

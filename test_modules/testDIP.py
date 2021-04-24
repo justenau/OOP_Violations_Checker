@@ -42,6 +42,7 @@ class CalculatorThatPrints(SimpleCalculator):
 
     # Should not cause warning
     def log(self, message):
+        message += 'Modified'
         return super(SimpleCalculator).log(message)
 
 
