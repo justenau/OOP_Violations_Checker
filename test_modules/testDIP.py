@@ -40,10 +40,14 @@ class CalculatorThatPrints(SimpleCalculator):
         print(result)
         return result
 
-    # Should not cause warning
+    # Should cause warning
     def log(self, message):
         message += 'Modified'
         return super(SimpleCalculator).log(message)
+
+    # Should not cause warning
+    def add(self, num, num2):
+        return super(CalculatorThatPrints, self).add(num, num2)
 
 
 class DifferentCalculator(SimpleCalculator, ABC):
@@ -51,6 +55,7 @@ class DifferentCalculator(SimpleCalculator, ABC):
     # Should not cause warning
     def __init__(self):
         super(SimpleCalculator).__init__()
+        print('Test')
 
     # Should cause warning
     def add(self, num, num2):
