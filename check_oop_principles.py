@@ -8,13 +8,18 @@ from pylint.extensions.mccabe import PathGraphingAstVisitor
 
 
 def is_abstract_function(function):
+    return has_decorator(function, 'abstractmethod')
+
+def is_property(function):
+    return has_decorator(function, 'property')
+
+def has_decorator(function, decorator):
     if function.decorators:
         for decorator_node in function.decorators.nodes:
-            if (hasattr(decorator_node, 'expr') and decorator_node.expr.parent.attrname == 'abstractmethod'
-                    or hasattr(decorator_node, 'name') and decorator_node.name == 'abstractmethod'):
+            if (hasattr(decorator_node, 'expr') and decorator_node.expr.parent.attrname == decorator
+                    or hasattr(decorator_node, 'name') and decorator_node.name == decorator):
                 return True
     return False
-
 
 def is_not_implemented(function, expression):
     expression_type = type(expression)
@@ -126,7 +131,7 @@ class SRPChecker(BaseChecker):
 
     def leave_classdef(self, node):
         my_methods = sum(
-            1 for method in node.mymethods() if not method.name.startswith("_")
+            1 for method in node.mymethods() if not method.name.startswith("_") and not is_property(method)
         )
         if my_methods > self.config.srp_max_public_methods:
             self.add_message(
