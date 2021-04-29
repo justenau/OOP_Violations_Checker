@@ -13,7 +13,7 @@ Tool aiming to automatically detect OOP principle violations in Python code. Cur
 `SRPChecher` evaluates classes based on LCOM (Lack of Cohesion of Methods), CCM (Cyclomatic Complexity per Method), maximum public methods per class and maximum attributes per class metrics. It raises warnings if LCOM > 1 or CCM > 10 or amount of methods is class is more than 20 or if amount of attributes in class is more than 15 (last three metrics can be changed by editing config).
 
 
-To calculate LCOM for each classes, additional library (`lcom`) is used. 
+To calculate LCOM for each class, additional library (`lcom`) is used. 
 
 
 For CCM calculation, logic from `mccabe` tool is reused.
