@@ -4,7 +4,7 @@ Tool aiming to automatically detect OOP principle violations in Python code. Cur
 
 ## Usage
 * Make sure `OOP_Violations_Checker` directory is added to `PYTHONPATH`. 
-* Add `.pylintrc` to the root directory of the project you want to analyze. This file contains the whole Pylint configuration. The default configuration disables all Pylint checkers except for custom SRP and LSP checkers. Also `srp-max-ccm`, `srp-max-public-methods` and `srp-max-attributes` options are related to SRP checker and could be changed if neccessary.
+* Add `.pylintrc` to the root directory of the project you want to analyze. This file contains the whole Pylint configuration. The default configuration disables all Pylint checkers except for custom SRP, ISP, LSP and DIP checkers. Also `srp-max-ccm`, `srp-max-public-methods` and `srp-max-attributes` options are related to SRP checker and could be changed if neccessary.
 * Run `pylint <directory>` with the name of the directory you want to analyze or `pylint <modules>` providing file names if you want to analyze only certain files.
 * It is also possible to configure Pylint to run in your IDE, check Pylint documentation for more info.
 
